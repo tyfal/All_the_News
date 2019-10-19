@@ -84,19 +84,19 @@ app.get(`/api/articles`, function (req, res) {
 
 });
 
-app.get(`/api/articles/archive/:id`, function(req, res) {
-
-    db.ArticleArchive.create();
-
+app.get("/articles/:id", (req, res) => {
+    db.Article.findOne({ _id: req.param.id })
+        .populate("note")
+        .then(dbArticle => res.json(dbArticle))
+        .catch((err) => res.json(err));
 });
 
-// Drop all articles
-app.get(`/api/articles/archive`, function (req, res) {
-
-    
-
-});
-
+app.post("/articles/:id", (req, res) => {
+    db.Note.create(req.body)
+        .then(dbNote => { return db.Article.findOneAndUpdate({ _id:req.params.id }, { note: dbNote._id }), { new: true } })
+        .then(dbArticle => res.json(dbArticle))
+        .catch(err => res.json(err));
+})
 
 // Start the server
 app.listen(PORT, function () {
